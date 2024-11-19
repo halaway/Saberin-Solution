@@ -1,15 +1,54 @@
 ﻿@page "/"
 @using music_manager_starter.Shared
-
 @inject HttpClient Http
+@inject NavigationManager Navigation // Inject NavigationManager
 
 @code {
     private List<Song> songs;
+    private string uploadMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
     }
+
+    private async Task FileUpload(InputFileChangeEventArgs e, Song song)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            // Restrict to image files
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                uploadMessage = "Only image files are allowed!";
+                Console.WriteLine($"Hello: '{uploadMessage}' ");
+                return;
+            }
+
+            // Process the file
+            uploadMessage = $"File '{file.Name}' uploaded successfully!";
+            Console.WriteLine($"File uploaded for song '{song.Title}': {file.Name}, Size: {file.Size} bytes");
+
+            // Save the file (e.g., as binary data)
+            using var stream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+
+
+
+            // Update the song with the image
+            song.ImageData = memoryStream.ToArray();
+            song.ImageMimeType = file.ContentType;
+
+
+            // Updating Server
+           // await Http.PostAsJsonAsync("api/songs", song);
+
+           
+        }
+    }
+
 }
 
 <div class="p-0 min-h-screen bg-pattern flex flex-col items-center justify-center">
@@ -19,10 +58,18 @@
         {
             @foreach (var song in songs)
             {
-                <div class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
+                <div @onclick="() => NavigateSong(song.Id)" 
+                     class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
                     <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
                     <p class="text-md">Artist: <span class="font-light">@song.Artist</span></p>
-
+                    @if (song.ImageData != null)
+                    {
+                        <img src="data:@song.ImageMimeType;base64,@Convert.ToBase64String(song.ImageData)" 
+                             alt="@song.Title" 
+                             class="w-48 h-48 object-cover rounded-lg mb-4" />
+                    }
+                    <InputFile OnChange="@(e => FileUpload(e, song))" 
+                        @onclick:stopPropagation="true" />
                 </div>
             }
         }
@@ -33,7 +80,20 @@
     </div>
 </div>
 
-<style>
+@code {
+    //[Inject]
+    //private NavigationManager Navigation { get; set; } // Inject NavigationManager
+
+    private void NavigateSong(Guid songId)
+    {
+        // Navigate to the detailed song page, passing the song ID
+        Navigation.NavigateTo($"/song-details/{songId}");
+    }
+}
+
+
+
+<style>    
     .bg-pattern {
         background: linear-gradient( rgba(31, 41, 55, 0.7), rgba(31, 41, 55, 0.7) ), url('dalle.webp');
         background-size: cover;

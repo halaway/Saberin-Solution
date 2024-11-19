@@ -1,0 +1,64 @@
+@page "/song-details/{id:guid}"
+@inject NavigationManager Navigation
+@using music_manager_starter.Shared
+@* @inject ISongService SongService *@
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<h3 class="text-white text-3xl mb-4">Song Details</h3>
+
+@if (song == null)
+{
+    <p class="text-gray-400">Loading song details...</p>
+}
+else
+{
+    <div class="glass p-6 border border-gray-300 rounded-lg text-white">
+        <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
+        <p><strong>Artist:</strong> @song.Artist</p>
+        <p><strong>Album:</strong> @song.Album</p>
+        <p><strong>Genre:</strong> @song.Genre</p>
+
+        @if (!string.IsNullOrEmpty(song.ImageMimeType) && song.ImageData != null)
+        {
+            <img src="data:@song.ImageMimeType;base64,@Convert.ToBase64String(song.ImageData)" 
+                 alt="@song.Title" class="w-48 h-48 object-cover rounded-lg mt-4" />
+        }
+    </div>
+    <button class="mt-4 bg-red-500 text-white px-4 py-2 rounded" @onclick="GoBack">
+        Back to Library
+    </button>
+}
+
+@code {
+    [Parameter] public Guid id { get; set; }
+    private Song? song;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Call API to fetch the song details by ID
+            song = await Http.GetFromJsonAsync<Song>($"api/songs/{id}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading song details: {ex.Message}");
+            song = null;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+}
+
+
+
+
+
+
+
+
