@@ -11,6 +11,14 @@ This solution contains an easy to use and simple music manager.
 - Blazor
 
 
+## Deliverables 
+| Task | Current Status | Feature |
+|-----------|----------------|-----------|
+| Main Feature | Completed | - [x] Image Upload|
+| Smaller Feature | Completed | - [x] Search Functionality |
+| Smaller Feature | Completed | - [x] Detailed View|
+
+
 ## Local Enviroment Setup
 You need to have the .NET 8 SDK installed. Be sure to download the latest version for Visual Studio 2022.
 
