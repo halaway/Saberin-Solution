@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using music_manager_starter.Shared
 @inject HttpClient Http
-@inject NavigationManager Navigation // Inject NavigationManager
+@inject NavigationManager Navigation 
 
 @code {
     private List<Song> songs;
@@ -21,23 +21,22 @@
             // Restrict to image files
             if (!file.ContentType.StartsWith("image/"))
             {
-                uploadMessage = "Only image files are allowed!";
+                uploadMessage = "Only image files are allowed";
                 Console.WriteLine($"Hello: '{uploadMessage}' ");
                 return;
             }
 
-            // Process the file
-            uploadMessage = $"File '{file.Name}' uploaded successfully!";
+            uploadMessage = $"File '{file.Name}' uploaded";
             Console.WriteLine($"File uploaded for song '{song.Title}': {file.Name}, Size: {file.Size} bytes");
 
-            // Save the file (e.g., as binary data)
+            // Saving file
             using var stream = file.OpenReadStream();
             using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
 
 
 
-            // Update the song with the image
+            // Updating song with image attribute
             song.ImageData = memoryStream.ToArray();
             song.ImageMimeType = file.ContentType;
 
@@ -81,8 +80,7 @@
 </div>
 
 @code {
-    //[Inject]
-    //private NavigationManager Navigation { get; set; } // Inject NavigationManager
+   
 
     private void NavigateSong(Guid songId)
     {
@@ -101,7 +99,6 @@
         font-family: 'Rajdhani', sans-serif;
     }
 
- 
 
     .glass {
         background: rgba(255, 255, 255, 0.1);

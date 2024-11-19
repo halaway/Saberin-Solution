@@ -2,11 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using music_manager_starter.Data;
 using music_manager_starter.Data.Models;
-using System;
-
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-
 
 namespace music_manager_starter.Server.Controllers
 {
@@ -21,7 +19,6 @@ namespace music_manager_starter.Server.Controllers
             _context = context;
         }
 
-  
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Song>>> GetSongs()
         {
@@ -35,7 +32,6 @@ namespace music_manager_starter.Server.Controllers
             {
                 return BadRequest("Song cannot be null.");
             }
-
 
             _context.Songs.Add(song);
             await _context.SaveChangesAsync();
@@ -55,6 +51,32 @@ namespace music_manager_starter.Server.Controllers
 
             return song;
         }
-    }
 
+        // Search endpoint
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Song>>> SearchSongs([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Search query cannot be empty.");
+            }
+
+            query = query.ToLower();
+
+            // Querying results to search title, artist, or album
+            var results = await _context.Songs
+                .Where(song => 
+                    song.Title.ToLower().Contains(query) || 
+                    song.Artist.ToLower().Contains(query) || 
+                    song.Album.ToLower().Contains(query))
+                .ToListAsync();
+
+            if (!results.Any())
+            {
+                return NotFound("No songs match the search criteria.");
+            }
+
+            return Ok(results);
+        }
+    }
 }
