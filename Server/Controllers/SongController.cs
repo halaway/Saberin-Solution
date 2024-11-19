@@ -4,6 +4,10 @@ using music_manager_starter.Data;
 using music_manager_starter.Data.Models;
 using System;
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+
 namespace music_manager_starter.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -38,5 +42,19 @@ namespace music_manager_starter.Server.Controllers
 
             return Ok();
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Song>> GetSongById(Guid id)
+        {
+            var song = await _context.Songs.FindAsync(id);
+
+            if (song == null)
+            {
+                return NotFound($"Song with ID {id} not found.");
+            }
+
+            return song;
+        }
     }
+
 }
