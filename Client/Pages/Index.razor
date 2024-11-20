@@ -67,7 +67,7 @@
                              alt="@song.Title" 
                              class="w-48 h-48 object-cover rounded-lg mb-4" />
                     }
-                    <InputFile OnChange="@(e => FileUpload(e, song))" 
+                    <InputFile OnChange="@(e => FileUpload(e, song))"
                         @onclick:stopPropagation="true" />
                 </div>
             }
