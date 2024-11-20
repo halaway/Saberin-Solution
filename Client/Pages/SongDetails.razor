@@ -1,0 +1,67 @@
+@page "/song-details/{id:guid}"
+@inject NavigationManager Navigation
+@using music_manager_starter.Shared
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+
+<div class="min-h-screen bg-pattern flex flex-col items-center justify-center px-4">
+    @if (song == null)
+    {
+        <p class="text-gray-400 text-xl">Loading song details...</p>
+    }
+    else
+    {
+        <div class="glass p-6 border border-gray-300 rounded-lg text-white shadow-lg max-w-md w-full">
+            <div class="flex flex-col items-center">
+                @if (!string.IsNullOrEmpty(song.ImageMimeType) && song.ImageData != null)
+                {
+                    <img src="data:@song.ImageMimeType;base64,@Convert.ToBase64String(song.ImageData)" 
+                         alt="@song.Title" class="w-48 h-48 object-cover rounded-lg mb-6" />
+                }
+                else
+                {
+                    <div class="w-48 h-48 flex items-center justify-center bg-gray-700 text-gray-400 rounded-lg mb-6">
+                        No Image Available
+                    </div>
+                }
+            </div>
+
+            <h3 class="text-2xl font-semibold text-center mb-4">@song.Title</h3>
+
+            <div class="space-y-2">
+                <p><strong>Artist:</strong> <span class="font-light">@song.Artist</span></p>
+                <p><strong>Album:</strong> <span class="font-light">@song.Album</span></p>
+                <p><strong>Genre:</strong> <span class="font-light">@song.Genre</span></p>
+            </div>
+
+            <button class="mt-6 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-all" 
+                    @onclick="GoBack">
+                Back to Library
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid id { get; set; }
+    private Song? song;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            song = await Http.GetFromJsonAsync<Song>($"api/songs/{id}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading song details: {ex.Message}");
+            song = null;
+        }
+    }
+
+    private async Task GoBack()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
+    }
+}
